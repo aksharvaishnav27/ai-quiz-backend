@@ -1,0 +1,82 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  quizzes   Quiz[]
+}
+
+model Quiz {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  grade       String
+  subject     String
+  difficulty  String   @default("medium")
+  totalQuestions Int
+  score       Float?
+  maxScore    Int
+  createdAt   DateTime @default(now())
+  questions   Question[]
+  submissions QuizSubmission[]
+}
+
+model Question {
+  id          String   @id @default(uuid())
+  quizId      String
+  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  questionText String
+  correctAnswer String
+  difficulty  String
+  options     Json?    // Array of options
+  questionNumber Int
+  createdAt   DateTime @default(now())
+  hints       Hint[]
+  submissions QuestionSubmission[]
+}
+
+model Hint {
+  id          String   @id @default(uuid())
+  questionId  String
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  hintText    String
+  createdAt   DateTime @default(now())
+}
+
+model QuizSubmission {
+  id          String   @id @default(uuid())
+  quizId      String
+  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  userId      String
+  score       Float
+  maxScore    Int
+  percentage  Float
+  improvements Json?   // Array of improvement suggestions
+  createdAt   DateTime @default(now())
+  questionSubmissions QuestionSubmission[]
+}
+
+model QuestionSubmission {
+  id          String   @id @default(uuid())
+  submissionId String
+  submission  QuizSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  questionId  String
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  userAnswer  String
+  isCorrect   Boolean
+  createdAt   DateTime @default(now())
+}
+

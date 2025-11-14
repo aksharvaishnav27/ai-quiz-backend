@@ -1,0 +1,219 @@
+{
+  "info": {
+    "name": "AI Quizzer API",
+    "description": "Complete API collection for AI Quizzer Application",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "quiz_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('jwt_token', jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"student1\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quiz",
+      "item": [
+        {
+          "name": "Generate Quiz",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('quiz_id', jsonData.quizId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"grade\": \"5\",\n  \"subject\": \"Mathematics\",\n  \"numQuestions\": 10,\n  \"difficulty\": \"medium\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/quiz/generate",
+              "host": ["{{base_url}}"],
+              "path": ["quiz", "generate"]
+            }
+          }
+        },
+        {
+          "name": "Submit Quiz",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quizId\": \"{{quiz_id}}\",\n  \"answers\": [\n    {\n      \"questionId\": \"question-id-1\",\n      \"answer\": \"Option A\"\n    },\n    {\n      \"questionId\": \"question-id-2\",\n      \"answer\": \"Option B\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/quiz/submit",
+              "host": ["{{base_url}}"],
+              "path": ["quiz", "submit"]
+            }
+          }
+        },
+        {
+          "name": "Get Quiz History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/quiz/history?grade=5&subject=Mathematics",
+              "host": ["{{base_url}}"],
+              "path": ["quiz", "history"],
+              "query": [
+                {
+                  "key": "grade",
+                  "value": "5"
+                },
+                {
+                  "key": "subject",
+                  "value": "Mathematics"
+                },
+                {
+                  "key": "from",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "to",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "minMarks",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Retry Quiz",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"answers\": [\n    {\n      \"questionId\": \"question-id-1\",\n      \"answer\": \"Option C\"\n    },\n    {\n      \"questionId\": \"question-id-2\",\n      \"answer\": \"Option D\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/quiz/retry/{{quiz_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["quiz", "retry", "{{quiz_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Hint",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/quiz/{{quiz_id}}/hint/question-id-here",
+              "host": ["{{base_url}}"],
+              "path": ["quiz", "{{quiz_id}}", "hint", "question-id-here"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        }
+      }
+    }
+  ]
+}
